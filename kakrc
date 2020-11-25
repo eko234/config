@@ -67,6 +67,8 @@ map global user w ':w<ret>' -docstring "save"
 map global user e ':e ' -docstring "edit"
 map global user <space> ':' -docstring "command.."
 map global user m ':easy-motion-WORD<ret>' -docstring "easy motion"
+map global user o ':tmux-terminal-horizontal kak %val{buffile}<ret>' -docstring "split h"
+map global user k ':edit-kakrc<ret>' -docstring "kakrc"
 
 hook global WinCreate .* %{
   addhl buffer/ column 80 default,rgb:404051
