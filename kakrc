@@ -17,6 +17,8 @@ plug "andreyorst/kaktree" config %{
 
 plug 'danr/kakoune-easymotion'
 
+plug 'Delapouite/kakoune-registers'
+
 plug 'eraserhd/kak-ansi'
 
 plug "Delapouite/kakoune-buffers" %{
@@ -39,15 +41,15 @@ set global modelinefmt '%val{bufname} %val{cursor_line}:%val{cursor_char_column}
 
 plug "enricozb/tabs.kak" %{
   set-option global modelinefmt_tabs '%val{cursor_line}:%val{cursor_char_column} {{context_info}} {{mode_info}}'
-  map global normal ^ q
-  map global normal <a-^> Q
-  map global normal q b
-  map global normal Q B
-  map global normal <a-q> <a-b>
-  map global normal <a-Q> <a-B>
+  # map global user ^ q
+  # map global user <a-^> Q
+  # map global user q b
+  # map global user Q B
+  # map global user <a-q> <a-b>
+  # map global user <a-Q> <a-B>
 
-  map global normal b ': enter-user-mode tabs<ret>' -docstring 'tabs'
-  map global normal B ': enter-user-mode -lock tabs<ret>' -docstring 'tabs (lock)'
+  # map global user b ': enter-user-mode tabs<ret>' -docstring 'tabs'
+  # map global user B ': enter-user-mode -lock tabs<ret>' -docstring 'tabs (lock)'
 }
 
 # tabs to spaces
@@ -69,22 +71,28 @@ map global user <space> ':' -docstring "command.."
 map global user m ':easy-motion-WORD<ret>' -docstring "easy motion"
 map global user o ':tmux-terminal-horizontal kak %val{buffile}<ret>' -docstring "split h"
 map global user k ':edit-kakrc<ret>' -docstring "kakrc"
+map global user c ':comment-line<ret>' -docstring "comment"
 
 hook global WinCreate .* %{
   addhl buffer/ column 80 default,rgb:404051
 }
 
 # lsp
-hook global WinSetOption filetype=(racket|rust|ruby|lisp|python|javascript|haskell|c|cpp|latex|css) %{
+hook global WinSetOption filetype=(rust|ruby|lisp|python|javascript|haskell|c|cpp|latex|css) %{
  lsp-enable-window
  lsp-auto-hover-enable
  set global lsp_hover_anchor true
  auto-pairs-enable
  # set global lsp_snippet_callback snippets-insert
 }
+
+hook global BufCreate '.*.rkt' %{
+ set-option buffer filetype lisp
+ auto-pairs-enable
+}
+
 plug "alexherbo2/connect.kak"
 require-module connect
-plug "https://bitbucket.org/KJ_Duncan/kakoune-racket.kak"
 # lispy things
 map global user a 'iλ<esc>' -docstring "lambda"
 map global insert <a-1> 'λ'
