@@ -41,7 +41,9 @@ set-option global indentwidth 2
 # custom keys #
 ###############
 
+
 map global normal <space> , -docstring 'leader'
+map global normal , <space> -docstring 'leader'
 map global user r ':tmux-repl-vertical<ret>' -docstring 'repl v'
 map global user C  %{/([<lt>]{7})(.*)([>>]{7})} -docstring 'find conflict'
 map global user y '<a-|>xclip -selection clipboard<ret>' -docstring 'copy outside'
@@ -59,8 +61,6 @@ map global surround c ':change-surround<ret>' -docstring 'change'
 map global surround d ':delete-surround<ret>' -docstring 'delete'
 map global surround t ':select-surrounding-tag<ret>' -docstring 'select tag'
 map global user s ':enter-user-mode surround<ret>' -docstring 'surround mode'
-map global user t ':execute-keys "%val{cursor_line}g" <ret>' -docstring 'unselect' 
-
 hook global WinCreate .* %{
 addhl buffer/ column 80 default,rgb:404051
 }
