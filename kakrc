@@ -62,11 +62,11 @@ map global surround d ':delete-surround<ret>' -docstring 'delete'
 map global surround t ':select-surrounding-tag<ret>' -docstring 'select tag'
 map global user s ':enter-user-mode surround<ret>' -docstring 'surround mode'
 hook global WinCreate .* %{
-addhl buffer/ column 80 default,rgb:404051
+  addhl buffer/ column 80 default,rgb:404051
 }
 
 # lsp
-hook global WinSetOption filetype=(rust|ruby|lisp|python|javascript|haskell|c|cpp|latex|css|scheme) %{
+hook global WinSetOption filetype=(lua|rust|ruby|lisp|python|javascript|haskell|c|cpp|latex|css|scheme) %{
  lsp-enable-window
  lsp-auto-hover-enable
  set global lsp_hover_anchor true
@@ -79,13 +79,11 @@ hook global BufCreate '.*.rkt' %{
  auto-pairs-enable
 }
 
+hook global BufCreate '.*.fnl' %{
+ set-option buffer filetype lisp
+ auto-pairs-enable
+}
+
 plug "alexherbo2/connect.kak"
 require-module connect
-# lispy things
 map global insert <a-1> 'λ'
-declare-user-mode repl
-map global user r ':enter-user-mode<space>repl<ret>' 
-map global repl s ':send-text "%val{selection}<c-v><ret>" <ret>' -docstring "send selection to repl"
-map global repl L ':send-text "racket<c-v><ret>"<ret>' -docstring "start racket in repl"
-map global repl l ':send-text "(load ""%val{buffile}"")<c-v><ret>"<ret>' -docstring "load current file to repl"
-map global repl g ':send-text "racket %val{buffile} <c-v><ret>"<ret>' -docstring "run current file"
