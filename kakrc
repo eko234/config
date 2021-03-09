@@ -4,15 +4,15 @@ plug "andreyourst/plug.kak" noload
 plug 'h-youhei/kakoune-surround'
 plug 'Delapouite/kakoune-registers'
 plug "Delapouite/kakoune-buffers" %{
-      map global user b ': enter-user-mode -lock buffers<ret>'   -docstring 'buffers (lock)…'
+      map global user b ': enter-user-mode -lock buffers<ret>' -docstring 'buffers (lock)…'
 }
 
 plug "andreyorst/fzf.kak" config %{
-	map global user f -docstring "fzf" ': fzf-mode<ret>'
+  map global user f -docstring "fzf" ': fzf-mode<ret>'
 }
 
 plug "enricozb/tabs.kak" %{
-  set-option global modelinefmt_tabs ' ♩ ♪ ♫ ♬ ♭ ♮ ♯ ♥ ♥ ♥ ¯\_(ツ)_/¯ %val{cursor_line}:%val{cursor_char_column}|%val{buf_line_count} {{context_info}} {{mode_info}}'
+  set-option global modelinefmt_tabs ' %sh{date} ¯\_(ツ)_/¯ ⭐ %val{cursor_line}:%val{cursor_char_column}|%val{buf_line_count} {{context_info}} {{mode_info}}'
   # enter-user-mode tabs
 }
 
@@ -24,53 +24,52 @@ set-option global tabstop 2
 set-option global indentwidth 2
 set-option global ui_options ncurses_assistant=cat
 
+# COMMANDS
+define-command open_localhost_at_port -params 1 %{
+#   info -title "open at porterino" '
+# input the port you want to open the browser baby'
+  nop %sh{/mnt/c/PROGRA~1/MOZILL~1/firefox.exe localhost:$1}
+}
+
 # MAPS
-map global normal <space> , -docstring 'leader'
-map global normal , <space> -docstring 'leader'
+map global normal <space> ,                              -docstring 'leader'
+map global normal , <space>                              -docstring 'leader'
 map global user y '<a-|>xclip -selection clipboard<ret>' -docstring 'copy outside'
-map global user p '\i'
-map global user w ':w<ret>' -docstring "save"
-map global user e ':e ' -docstring "edit"
-map global user E '!explorer.exe . <ret>' -docstring "explorer"
-map global user <space> ':' -docstring "command.."
-map global user k ':edit-kakrc<ret>' -docstring "kakrc"
-map global user B ':edit ~/.bashrc<ret>' -docstring "bashrc"
-map global user c ':comment-line<ret>' -docstring "comment"
-map global user C ':comment-block<ret>' -docstring "comment"
-map global user <a-Q> ':q!<ret>' -docstring "bye bye"
-declare-user-mode surround
-map global surround s ':surround<ret>' -docstring 'surround'
-map global surround c ':change-surround<ret>' -docstring 'change'
-map global surround d ':delete-surround<ret>' -docstring 'delete'
-map global surround t ':select-surrounding-tag<ret>' -docstring 'select tag'
-map global user s ':enter-user-mode surround<ret>' -docstring 'surround mode'
+map global user p '\i'                                   -docstring 'no hookies'
+map global user w ':w<ret>'                              -docstring "save"
+map global user e ':e '                                  -docstring "edit"
+map global user E '!explorer.exe . <ret>'                -docstring "explorer"
+map global user <space> ':'                              -docstring "command.."
+map global user F ':prompt "port: " %{open_localhost_at_port %val{text}}<ret>'  -docstring "Open Browser"
+map global user k ':edit-kakrc<ret>'                     -docstring "kakrc"
+map global user B ':edit ~/.bashrc<ret>'                 -docstring "bashrc"
+map global user c ':comment-line<ret>'                   -docstring "comment"
+map global user C ':comment-block<ret>'                  -docstring "comment"
+map global user <a-Q> ':q!<ret>'                         -docstring "bye bye"
+declare-user-mode surround                               
+map global surround s ':surround<ret>'                   -docstring 'surround'
+map global surround c ':change-surround<ret>'            -docstring 'change'
+map global surround d ':delete-surround<ret>'            -docstring 'delete'
+map global surround t ':select-surrounding-tag<ret>'     -docstring 'select tag'
+map global user s ':enter-user-mode surround<ret>'       -docstring 'surround mode'
 map global insert <a-1> 'λ'
 map global insert <a-2> '\'
-# map global user R ':' 
-# map global user K 
 
 # HOOKS
-hook global WinSetOption filetype=(lua|rust|ruby|lisp|python|javascript|haskell|c|cpp|latex|css|scheme) %{
+hook global WinSetOption filetype=(lua|lisp|python|javascript|haskell|c|css|scheme) %{
   # something some day
 }
 
 hook global BufCreate '.*.rkt' %{
  set-option buffer filetype lisp
- auto-pairs-enable
 }
 
 hook global InsertChar \t %{
     exec -draft h @
 }
 
-define-command mt %{
-  info -title "!" 'You
-are
-going
-to
-die'
-}
-
-define-command sh %{
-  prompt "say hi: " %{echo %val{text}}
-}
+hook global InsertChar \" %| exec -with-hooks '"<esc>hi' | 
+hook global InsertChar \' %| exec -with-hooks "'<esc>hi" | 
+hook global InsertChar \( %| exec -with-hooks ')<esc>hi' | 
+hook global InsertChar \[ %| exec -with-hooks ']<esc>hi' | 
+hook global InsertChar \{ %| exec -with-hooks "}<esc>hi" | 
