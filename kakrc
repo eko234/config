@@ -4,14 +4,7 @@ evaluate-commands %sh{
   kcr init kakoune
 }
 
-plug "andreyorst/kaktree" defer kaktree %{
-    set-option global kaktree_double_click_duration '0.5'
-    set-option global kaktree_indentation 1
-    set-option global kaktree_dir_icon_open  '▾' 
-    set-option global kaktree_dir_icon_close '▸' 
-    set-option global kaktree_file_icon      '#' 
-
-} config %{
+plug "andreyorst/kaktree" config %{
     hook global WinSetOption filetype=kaktree %{
         remove-highlighter buffer/numbers
         remove-highlighter buffer/matching
@@ -29,6 +22,7 @@ plug "andreyourst/plug.kak" noload
 plug 'h-youhei/kakoune-surround'
 plug 'Delapouite/kakoune-registers'
 plug 'Delapouite/kakoune-palette'
+plug 'KJ_Duncan/kakoune-kotlin.kak' domain "bitbucket.org"
 plug "Delapouite/kakoune-buffers" %{
       map global user b ': enter-user-mode -lock buffers<ret>' -docstring 'buffers (lock)…'
 }
@@ -52,13 +46,6 @@ set-option global ui_options ncurses_assistant=cat
 add-highlighter global/ wrap             -marker '↪ '
 add-highlighter global/ regex \b(TODO|FIXME|XXX|NOTE|BUG|DEBUG|TBD|HACK)\b 0:default+rb
 
-# COMMANDS
-define-command open_localhost_at_port -params 1 %{
-# info -title "open at porterino" '
-# input the port you want to open the browser baby'
-  nop %sh{/mnt/c/PROGRA~1/MOZILL~1/firefox.exe localhost:$1}
-}
-
 # MAPS
 map global normal <space> ,                              -docstring 'leader'
 map global normal , <space>                              -docstring 'leader'
@@ -68,7 +55,6 @@ map global user w ':w<ret>'                              -docstring "save"
 map global user e ':e '                                  -docstring "edit"
 map global user E '!explorer.exe . <ret>'                -docstring "explorer"
 map global user <space> ':'                              -docstring "command.."
-map global user F ':prompt "port: " %{open_localhost_at_port %val{text}}<ret>'  -docstring "Open Browser"
 map global user k ':edit-kakrc<ret>'                     -docstring "kakrc"
 map global user K ':source "%val{config}/kakrc"<ret>'    -docstring "re-source"
 map global user t ':edit ~/.tmux.conf<ret>'              -docstring "tmux"
@@ -83,21 +69,11 @@ map global surround c ':change-surround<ret>'            -docstring 'change'
 map global surround d ':delete-surround<ret>'            -docstring 'delete'
 map global surround t ':select-surrounding-tag<ret>'     -docstring 'select tag'
 map global user s ':enter-user-mode surround<ret>'       -docstring 'surround mode'
+map global normal <F1> '<c-o>' -docstring 'prev jump'
+map global normal <F2> '<tab>' -docstring 'next jump'
 map global insert <a-1> 'λ'
 map global insert <a-2> '\'
 map global normal <a-3> ':kaktree-toggle<ret>'
 
-# HOOKS
-hook global WinSetOption filetype=(lua|lisp|python|javascript|haskell|c|css|scheme) %{
-  # something some day
-}
-
-hook global BufCreate '.*.rkt' %{
- set-option buffer filetype lisp
-}
-
-hook global InsertChar \t %{
-    exec -draft h @
-}
-
-map global user q ',ss{ms(Alarma|Advertencia)<ret>ghGldms(AM|PM)<ret>ghglli <esc>Pmjk,sd{<space>'
+hook global BufCreate '.*.rkt' %{ set-option buffer filetype lisp }
+hook global InsertChar \t %{ exec -draft h @ }
