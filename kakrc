@@ -4,6 +4,15 @@ evaluate-commands %sh{
   kcr init kakoune
 }
 
+hook global WinSetOption filetype=(python) %{
+  set-option global lsp_server_configuration pyls.configurationSources=["flake8"]
+  lsp-enable-window
+}
+
+hook global WinSetOption filetype=(javascript) %{
+  lsp-enable-window
+}
+
 plug "andreyorst/kaktree" config %{
     hook global WinSetOption filetype=kaktree %{
         remove-highlighter buffer/numbers
@@ -56,6 +65,7 @@ map global user e ':e '                                  -docstring "edit"
 map global user E '!explorer.exe . <ret>'                -docstring "explorer"
 map global user <space> ':'                              -docstring "command.."
 map global user k ':edit-kakrc<ret>'                     -docstring "kakrc"
+map global user ¡ ':edit ~/.config/kak/plugins/kak-lsp/kak-lsp.toml<ret>' -docstring "w"
 map global user K ':source "%val{config}/kakrc"<ret>'    -docstring "re-source"
 map global user t ':edit ~/.tmux.conf<ret>'              -docstring "tmux"
 map global user B ':edit ~/.bashrc<ret>'                 -docstring "bashrc"
@@ -68,12 +78,32 @@ map global surround s ':surround<ret>'                   -docstring 'surround'
 map global surround c ':change-surround<ret>'            -docstring 'change'
 map global surround d ':delete-surround<ret>'            -docstring 'delete'
 map global surround t ':select-surrounding-tag<ret>'     -docstring 'select tag'
+
+define-command slurp-forward %@
+  try %=execute-keys %#?(\)|\]|\}|>|"|')<ret>hl#=
+  execute-keys %sh|
+    case "$kak_selection" in
+      ')') printf "%s\n" "d";;
+      '}') printf "%s\n" "d";;
+      ']') printf "%s\n" "d";;
+      ">") printf "%s\n" "d";;
+      '"') printf "%s\n" "d";;
+      "'") printf "%s\n" "d";;
+      *)   printf "%s\n" ":fail no_more_delimiters<ret>";;
+    esac
+  |
+  execute-keys %&?(\(|\[|\{|<lt>|"|'|[a-zA-Z0-9\?!<lt><gt>]+)&
+@
+
+map global normal <a-J> ':execute-keys dpl<ret>'
+map global normal <a-K> ':execute-keys dhPh<ret>'
+# map global normal <a-L> ':slurp-forward'
+# map global normal <a-L> ':slurp-backwards'
 map global user s ':enter-user-mode surround<ret>'       -docstring 'surround mode'
 map global normal <F1> '<c-o>' -docstring 'prev jump'
 map global normal <F2> '<tab>' -docstring 'next jump'
 map global insert <a-1> 'λ'
 map global insert <a-2> '\'
 map global normal <a-3> ':kaktree-toggle<ret>'
-
 hook global BufCreate '.*.rkt' %{ set-option buffer filetype lisp }
 hook global InsertChar \t %{ exec -draft h @ }
