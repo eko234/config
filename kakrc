@@ -1,7 +1,10 @@
+# capture group are available in registers!!
 # TAG: PLUGINS
 # NOTE remember kakoune piping is like actually echoing the selections already
 source "%val{config}/plugins/plug.kak/rc/plug.kak"
 source "%val{config}/auto-load/tree.kak"
+source "%val{config}/auto-load/synonyms.kak"
+set-option global grepcmd "ag --column"
 
 # set global tree_cmd 'kak-tree -c ~/.config/kak/kak-tree.toml'
 set global tree_cmd '/home/jujo/kak-tree/target/release/kak-tree -c /home/jujo/.config/kak/kak-tree.toml '
@@ -19,6 +22,8 @@ define-command -override remove-scratch-message -docstring 'remove scratch messa
     }
   }
 }
+
+
 
 remove-scratch-message
 set-option global startup_info_version 999999999999999999999999
@@ -70,13 +75,15 @@ plug "andreyorst/powerline.kak" defer powerline %{
 
 plug "Crote/kakoune-tmux-extra"
 
+plug "eko234/kakoune-macro-store"
+
 add-highlighter global/ number-lines -relative -hlcursor
 add-highlighter global/ show-matching
 set-face global MatchingChar black,white
 set-option global tabstop 2
 set-option global indentwidth 2
 set-option global ui_options terminal_assistant=cat
-# set-option global ui_options terminal_status_on_top=yes
+set-option global ui_options terminal_status_on_top=yes
 add-highlighter global/ wrap             -marker '↪ '
 add-highlighter global/ regex \b(TODO|TAG|FIXME|XXX|NOTE|BUG|DEBUG|TBD|HACK|WONTFIX)\b 0:default+rb
 # add-highlighter global/show-trailing-whitespaces regex '\h+$' 0:Error
@@ -93,10 +100,11 @@ hook global NormalIdle .* %{
     }
 }
 
+hook global RegisterModified "/" %{
+  add-highlighter -override global/search regex "%reg{/}" 0:+u
+}
+
 ### INTERFACE
-
-
-
 evaluate-commands %sh{
     kcr init kakoune
 }
@@ -105,9 +113,16 @@ evaluate-commands %sh{
 plug "TeddyDD/kakoune-wiki" config %{
   wiki-setup %sh{ echo $HOME/wiki }
 }
-
+# plug "alexherbo2/alacritty.kak"
+# plug "caksoylar/kakoune-focus"
+plug "occivink/kakoune-roguelight"
 plug "lePerdu/kakboard"
 plug "maximbaz/restclient.kak"
+
+plug "eburghar/kakpipe" do %{
+	cargo install --force --path . --root ~/.local
+}
+
 # plug "chambln/kakoune-kit"
 # plug "danr/kakoune-easymotion"
 plug "gustavo-hms/luar" %{
@@ -132,7 +147,7 @@ plug "gustavo-hms/luar" %{
 
 plug "occivink/kakoune-snippets" config %{
   set-option -add global snippets_directories "%opt{plug_install_dir}/kakoune-snippet-collection/snippets"
-  set-option global snippets_auto_expand true
+  set-option global snippets_auto_expand false
   map global insert <a-2> '<esc>:snippets-select-next-placeholders<ret>i'
   map global user S ':snippets-menu<ret>'
 }
@@ -148,9 +163,13 @@ plug "andreyorst/kaktree" config %{
         remove-highlighter buffer/wrap
     }
     kaktree-enable
-    set-option global kaktree_dir_icon_open  '▾ 🗁 '
-    set-option global kaktree_dir_icon_close '▸ 🗀 '
-    set-option global kaktree_file_icon      '⠀⠀🖺'
+    # set-option global kaktree_dir_icon_open  '▾ 🗁 '
+    # set-option global kaktree_dir_icon_close '▸ 🗀 '
+    # set-option global kaktree_file_icon      '⠀⠀🖺'
+    set-option global kaktree_dir_icon_open  '▾ 📂'
+    set-option global kaktree_dir_icon_close '▸ 📁'
+    set-option global kaktree_file_icon      '⠀⠀🦆'
+    # set-option global kaktree_file_icon      '⠀⠀📄'
 }
 
 plug 'alexherbo2/auto-pairs.kak'
@@ -166,34 +185,36 @@ plug "Delapouite/kakoune-buffers" %{
   map global user b ': enter-user-mode -lock buffers<ret>' -docstring 'buffers (lock)…'
 }
 
-
-
 map global normal / '/(?i)'
 map global normal ? '?(?i)'
 map global normal <a-/> '<a-/>(?i)'
 map global normal <a-?> '<a-?>(?i)'
-
+map global normal <c-_> ':  set-register slash ""<ret>' ## for some reason this is <c-/>
 hook global WinCreate    .* 'git show-diff'
 hook global BufWritePost .* %{ git update-diff }
 
 # MAPS
 map global normal <space> ,                              -docstring 'leader'
-map global normal , <space>                              -docstring 'leader'
-map global user y ':  kakboard-toggle<ret>:  echo clip %opt{kakboard_enabled}<ret>'
-map global user y ':  kakboard-toggle<ret>' -docstring 'copy outside'
+map global normal , <space>                              -docstring 'remove other selections'
+map global normal <a-,> <a-space>                        -docstring 'remove main selection'
+
+map global user Y     '<a-|>xclip -i -selection clipboard<ret>'
+map global normal <c-y> '<a-|>xclip -i -selection clipboard<ret>'
 map global user p '\i'                                   -docstring 'no hookies'
 map global user w ':  w<ret>'                              -docstring "save"
-map global user e ':  e '                                  -docstring "edit"
+map global user e ': execute-keys %{<esc>: synonyms-set-thesaurus th_en_US_v2<ret><esc>: synonyms-replace-selection<ret>}'    -docstring "synonyms"
 map global user E '  !explorer.exe . <ret>'                -docstring "explorer"
 map global user <space> ':'                              -docstring "command.."
 map global user k ':  edit-kakrc<ret>'                     -docstring "kakrc"
-map global user ¡ ':  edit ~/.config/kak-lsp/kak-lsp.toml<ret>' -docstring "w"
+map global user ! ':  edit ~/.config/kak-lsp/kak-lsp.toml<ret>' -docstring "w"
+map global normal <c-k> ': kakpipe -S -- '    -docstring "kakpipe shorthand"
 map global user K ':  source "%val{config}/kakrc"<ret>'    -docstring "re-source"
 map global user A ':  e ~/.config/alacritty/alacritty.yml<ret>' -docstring "alacritty"
 map global user T ':  edit ~/.tmux.conf<ret>'              -docstring "tmux"
 map global user B ':  edit ~/.bashrc<ret>'                 -docstring "bashrc"
 map global user c ':  comment-line<ret>'                   -docstring "comment"
 map global user C ':  comment-block<ret>'                  -docstring "comment"
+map global user F ':  format<ret>'                         -docstring "format"
 # map global normal <c-t> '<c-s>%s\h+$<ret>d<space><c-o><c-o>'
 map global normal <c-x> 's^<ret>s\s<ret>wbdi<backspace><ret><esc><space>' -docstring "naive format"
 map global normal ^ '<a-`>'
@@ -277,15 +298,15 @@ hook global WinSetOption filetype=(fennel) %{
 #     cargo install --locked --force --path .
 # }
 
+eval %sh{kak-lsp --kakoune -s $kak_session}  # Not needed if you load it with plug.kak.
 # set global lsp_cmd "kak-lsp -s %val{session} -vvv --log ~/kak-lsp-log"
-
-# hook global WinSetOption filetype=(racket|scheme|python|lisp|javascript|json|html|css|bash) %{
-#   set-option global lsp_server_configuration pyls.configurationSources=["flake8"]
-#   lsp-enable-window
-#   # lsp-inlay-diagnostics-enable window
-#   # lsp-auto-hover-enable
-#   map global user h ":lsp-hover<ret>"
-# }
+hook global WinSetOption filetype=(ruby|racket|rust|scheme|python|lisp|javascript|json|html|css|bash) %{
+  # set-option global lsp_server_configuration pyls.configurationSources=["flake8"]
+  # lsp-inline-diagnostics-enable window
+  # lsp-auto-hover-enable
+  lsp-enable-window
+  map global user h ":lsp-hover<ret>"
+}
 
 define-command query-cheat-sheet %{
   execute-keys %sh{
@@ -360,113 +381,51 @@ define-command split %{
   new eval buffer %val{bufname} ';' select %val{selection}
 }
 
+require-module kakoune-macro-store
+map global normal <a-Q> ": store-macro-at-interactive<ret>"
+map global normal <a-q> ": play-macro-from-interactive<ret>"
 
-## MINIMUM
-# # source "%val{config}/plugins/plug.kak/rc/plug.kak"  
-# # INTERFACE
-# define-command -override remove-scratch-message -docstring 'remove scratch message' %{
-#   remove-hooks global remove-scratch-message
-#   hook -group remove-scratch-message global BufCreate '\*scratch\*' %{
-#     execute-keys '%d'
-#     hook -always -once buffer NormalIdle '' %{
-#       rename-buffer /dev/null
-#       evaluate-commands -no-hooks -- edit -scratch '*scratch*'
-#       delete-buffer /dev/null
-#     }
-#   }
-# }
+define-command ide -params 0..1 %{
+    try %{ rename-session %arg{1} }
 
-# remove-scratch-message
-# set-option global startup_info_version 999999999999999999999999
-# add-highlighter global/ number-lines -relative -hlcursor
-# add-highlighter global/ show-matching
-# set-face global MatchingChar black,white
-# set-option global tabstop 2
-# set-option global indentwidth 2
-# # set-option global ui_options terminal_assistant=cat
-# # set-option global ui_options terminal_status_on_top=yes
-# add-highlighter global/ wrap             -marker '↪ '
-# add-highlighter global/ regex \b(TODO|TAG|FIXME|XXX|NOTE|BUG|DEBUG|TBD|HACK|WONTFIX)\b 0:default+rb
-# # add-highlighter global/show-trailing-whitespaces regex '\h+$' 0:Error
-# # set-face global CurWord default,rgba:80808040
-# set-option global scrolloff 4,5
-## hook global NormalIdle .* %{
-##     eval -draft %{ try %{
-##         exec <space><a-i>w <a-k>\A\w+\z<ret>
-##         # add-highlighter -override global/curword regex "\b\Q%val{selection}\E\b" 0:CurWord
-##         add-highlighter -override global/curword regex "\b\Q%val{selection}\E\b" 0:default+rb
-##     } catch %{
-##         add-highlighter -override global/curword group
-##     }
-##     }
-## }
-# map global normal / '/(?i)'
-# map global normal ? '?(?i)'
-# map global normal <a-/> '<a-/>(?i)'
-# map global normal <a-?> '<a-?>(?i)'
+    rename-client main
+    set-option global jumpclient main
 
-# hook global WinCreate    .* 'git show-diff'
-# hook global BufWritePost .* %{ git update-diff }
-# map global normal <space> ,                              -docstring 'leader'
-# map global normal , <space>                              -docstring 'leader'
+    new rename-client tools
+    set-option global toolsclient tools
 
-# ### INTERFACE
-# background_opacity: 1.2
-# background_opacity: 1.93
-# background_opacity: 0.95
-# background_opacity: 0
-# background_opacity: 1.11
-window:
-  padding:
-    x: 8
-    y: 0
-  dynamic_padding: true
-  dimensions:
-    columns: 0
-    lines: 0
-  decorations: full
+    new rename-client docs
+    set-option global docsclient docs
+}
 
-env:
-  TERM: xterm-256color
+require-module kakpipe
 
-font:
-  normal:
-    # family: Cozette Vector
-    # family: Hack Nerd Font Mono
-    family: Hasklug Nerd Font Mono
-    # family: Monoid
-    # family: Consolas
-    # style: Bold
-    # family: Source Code Pro
-    # style: Regular
-colors:
-  name: s3r0 modified
-  author: earsplit
-  primary:
-    # background: "#1F1F1F"
-    # background: "#151C1B"
-    background: "#161d1c"
-    foreground: "#C0B18B"
-  cursor:
-    text: "#1F1F1F"
-    cursor: "#C0B18B"
-  normal:
-    # black: "#4A3637"
-    black: "#161d1c"
-    red: "#D17B49"
-    green: "#7B8748"
-    yellow: "#AF865A"
-    blue: "#535C5C"
-    magenta: "#775759"
-    cyan: "#6D715E"
-    white: "#C0B18B"
-  bright:
-    black: "#4A3637"
-    red: "#D17B49"
-    green: "#7B8748"
-    yellow: "#AF865A"
-    blue: "#535C5C"
-    magenta: "#775759"
-    cyan: "#6D715E"
-    white: "#C0B18B"
+define-command dicto %{
+  prompt 'dicto!: ' %{eval kakpipe -S -- sdcv %val{text}}
+}
 
+map global user d %{: dicto<ret>}
+
+plug "JacobTravers/kakoune-grep-write"
+
+plug "abuffseagull/kakoune-discord" do %{ cargo install --path . --force } %{
+  discord-presence-enable
+}
+
+plug "abuffseagull/kakoune-toggler" do %{ cargo install --path . }
+
+plug "1g0rb0hm/search.kak" config %{
+  set-option global search_context 3 # number of context lines
+}
+
+# plug "the-mikedavis/buffercraft.kak"
+
+hook global BufWritePre .* %{
+  nop %sh{
+    container=$(dirname "$kak_hook_param")
+    test -d "$container" ||
+      mkdir --parents "$container"
+  }
+}
+
+plug "https://gitlab.com/Screwtapello/kakoune-repl-buffer"
