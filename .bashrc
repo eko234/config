@@ -28,13 +28,12 @@ shopt -s checkwinsize
 #shopt -s globstar
 
 # make less more friendly for non-text input files, see lesspipe(1)
-#[ -x /usr/bin/lesspipe ] && eval "$(SHELL=/bin/sh lesspipe)"
+[ -x /usr/bin/lesspipe ] && eval "$(SHELL=/bin/sh lesspipe)"
 
 # set variable identifying the chroot you work in (used in the prompt below)
 if [ -z "${debian_chroot:-}" ] && [ -r /etc/debian_chroot ]; then
     debian_chroot=$(cat /etc/debian_chroot)
 fi
-
 # set a fancy prompt (non-color, unless we know we "want" color)
 case "$TERM" in
     xterm-color|*-256color) color_prompt=yes;;
@@ -79,18 +78,22 @@ if [ -x /usr/bin/dircolors ]; then
     #alias dir='dir --color=auto'
     #alias vdir='vdir --color=auto'
 
-    #alias grep='grep --color=auto'
-    #alias fgrep='fgrep --color=auto'
-    #alias egrep='egrep --color=auto'
+    alias grep='grep --color=auto'
+    alias fgrep='fgrep --color=auto'
+    alias egrep='egrep --color=auto'
 fi
 
 # colored GCC warnings and errors
 #export GCC_COLORS='error=01;31:warning=01;35:note=01;36:caret=01;32:locus=01:quote=01'
 
 # some more ls aliases
-#alias ll='ls -l'
-#alias la='ls -A'
-#alias l='ls -CF'
+alias ll='ls -alF'
+alias la='ls -A'
+alias l='ls -CF'
+
+# Add an "alert" alias for long running commands.  Use like so:
+#   sleep 10; alert
+alias alert='notify-send --urgency=low -i "$([ $? = 0 ] && echo terminal || echo error)" "$(history|tail -n1|sed -e '\''s/^\s*[0-9]\+\s*//;s/[;&|]\s*alert$//'\'')"'
 
 # Alias definitions.
 # You may want to put all your additions into a separate file like
@@ -112,17 +115,73 @@ if ! shopt -oq posix; then
   fi
 fi
 
-export PS1="l@\W:\-> "
+setxkbmap -option caps:swapescape
+. "$HOME/.cargo/env"
 
-alias python='python3'
-alias ga='git add'
-alias gaa='git add .'
-alias gc='git commit'
-alias gtom='git push origin master'
-alias gfom='git pull origin master'
-alias brc='kak ~/.bashrc'
-alias lua='lua5.1'
-alias t='tmux a || tmux'
+PLAN9=/home/jujo/plan9port export PLAN9
+PATH=$PATH:$PLAN9/bin export PATH
 
-[ -z "$TMUX" ] && { tmux attach || exec tmux new-session;} && kak
+xmodmap ~/.Xmodmap
+xbindkeys
 
+# plumber &
+# /home/jujo/.config/kak/plugins/kak-plumb/edit-client &
+#
+#
+export PATH=/home/jujo/.nimble/bin:$PATH
+export EDITOR='kks edit'
+setxkbmap us
+
+mkcd () {
+  mkdir -vp "$@" && cd "$@"
+}
+
+amk () {
+  if ! [ -f "Makefile" ]; then
+  content=$(cat <<'EOF'
+run:
+  @echo how?
+
+.PHONY: run
+EOF
+  )
+  printf "$content" | kak -f 's^<space>+<ret>c<tab>' > Makefile
+  fi
+
+  if ! [ -d "scripts" ]; then
+  mkdir scripts
+  fi
+}
+
+ak () {
+if [ -f ".kakrc" ]; then
+  return 1
+fi
+
+content=$(cat <<'EOF'
+define-command runB %{
+  kp echo :Implement me:
+}
+
+define-command prompt-commands %{
+  peneira "DO: " %{
+printf "runB"
+  } %{
+    eval %arg{1}
+  }
+}
+
+map global user j ': prompt-commands<ret>'
+EOF
+)
+
+echo "$content" > .kakrc
+}
+
+alias na="nautilus ."
+alias k="kak"
+alias z="clear"
+alias sb="source ~/.bashrc"
+alias s='sudo'
+alias sl='echo "(╯°□°)╯ ┻━┻"'
+alias ctags='ctags-universal'
