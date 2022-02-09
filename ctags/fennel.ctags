@@ -1,0 +1,4 @@
+--langdef=Fennel
+--langmap=Fennel:.fnl
+--regex-fennel=/\([ \t]*fn[ \t]+([-[:alnum:]*+!_:\/.?]+)/\1/s,symbol/
+--regex-fennel=/\([ \t]*local[ \t]+([-[:alnum:]*+!_:\/.?]+)/\1/l,local/
