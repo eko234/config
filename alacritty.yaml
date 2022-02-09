@@ -1,0 +1,73 @@
+# background_opacity: 1.2
+# background_opacity: 1.93
+background_opacity: 0.991
+# background_opacity: 0.68
+# background_opacity: 1.31
+window:
+  padding:
+    x: 0
+    y: 0
+  dynamic_padding: true
+  dimensions:
+    columns: 0
+    lines: 0
+  decorations: full
+
+env:
+  TERM: xterm-256color
+
+font:
+  size: 16
+  normal:
+    # family: Cozette Vector
+    # family: Hack Nerd Font Mono
+    family: Hasklug Nerd Font Mono
+    # family: Monoid
+    # family: Consolas
+    # style: Bold
+    # family: Source Code Pro
+    # style: Regular
+
+window:
+  padding:
+    x: 2
+    y: 2
+  dynamic_padding: true
+  dimensions:
+    columns: 0
+    lines: 0
+  decorations: full
+
+env:
+  TERM: xterm-256color
+
+colors:
+  name: s3r0 modified
+  author: earsplit
+  primary:
+    # background: "#1F1F1F"
+    # background: "#151C1B"
+    background: "#161d1c"
+    foreground: "#C0B18B"
+  cursor:
+    text: "#1F1F1F"
+    cursor: "#C0B18B"
+  normal:
+    # black: "#4A3637"
+    black: "#161d1c"
+    red: "#D17B49"
+    green: "#7B8748"
+    yellow: "#AF865A"
+    blue: "#535C5C"
+    magenta: "#775759"
+    cyan: "#6D715E"
+    white: "#C0B18B"
+  bright:
+    black: "#4A3637"
+    red: "#D17B49"
+    green: "#7B8748"
+    yellow: "#AF865A"
+    blue: "#535C5C"
+    magenta: "#775759"
+    cyan: "#6D715E"
+    white: "#C0B18B"
