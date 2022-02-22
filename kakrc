@@ -1,11 +1,17 @@
 # capture group are available in registers!!
+# <a-S> is kinda cool for tags stuff dude
+# <a-;> lets me go to normal mode for one shot commands, quite nice indeed
 # TAG:PLUGINS
 # NOTE remember kakoune piping is like actually echoing the selections already
 source "%val{config}/plugins/plug.kak/rc/plug.kak"
-source "%val{config}/auto-load/tree.kak"
+# source "%val{config}/auto-load/tree.kak"
+# set global tree_cmd 'kak-tree -c ~/.config/kak/kak-tree.toml'
+# set-option global tree_cmd '/home/jujo/kak-tree/target/release/kak-tree -c /home/jujo/.config/kak/kak-tree.toml '
 source "%val{config}/auto-load/synonyms.kak"
-plug "alexherbo2/tmux.kak"
-plug "Crote/kakoune-tmux-extra"
+# plug "alexherbo2/tmux.kak"
+# plug "Crote/kakoune-tmux-extra"
+# plug "JacobTravers/kakoune-grep-write"
+# plug "eraserhd/kak-ansi"
 plug "TeddyDD/kakoune-wiki" config %{
   wiki-setup %sh{ echo $HOME/wiki }
 }
@@ -16,31 +22,30 @@ plug "eburghar/kakpipe" do %{
 plug "dgmulf/local-kakrc" config %{
     set-option global source_local_kakrc true
 }
-plug "listentolist/kakoune-table" domain "gitlab.com" config %{
-    # suggested mappings
-    # map global user t ": evaluate-commands -draft table-align<ret>" -docstring "align table"
-    # map global user t ": table-enable<ret>" -docstring "enable table mode"
-    # map global user T ": table-disable<ret>" -docstring "disable table mode"
-    # map global user t ": table-toggle<ret>" -docstring "toggle table mode"
-    # map global user t ": enter-user-mode table<ret>" -docstring "table"
-    # map global user T ": enter-user-mode -lock table<ret>" -docstring "table (lock)"
-}
-plug "JacobTravers/kakoune-grep-write"
 
-plug "abuffseagull/kakoune-discord" do %{ cargo install --path . --force } %{
-  discord-presence-enable
-}
+# plug "listentolist/kakoune-table" domain "gitlab.com" config %{
+#     # suggested mappings
+#     # map global user t ": evaluate-commands -draft table-align<ret>" -docstring "align table"
+#     # map global user t ": table-enable<ret>" -docstring "enable table mode"
+#     # map global user T ": table-disable<ret>" -docstring "disable table mode"
+#     # map global user t ": table-toggle<ret>" -docstring "toggle table mode"
+#     # map global user t ": enter-user-mode table<ret>" -docstring "table"
+#     # map global user T ": enter-user-mode -lock table<ret>" -docstring "table (lock)"
+# }
 
-plug "1g0rb0hm/search.kak" config %{
-  set-option global search_context 3 # number of context lines
-}
+# plug "abuffseagull/kakoune-discord" do %{ cargo install --path . --force } %{
+#   discord-presence-enable
+# }
+
+# plug "1g0rb0hm/search.kak" config %{
+#   set-option global search_context 3 # number of context lines
+# }
+
 require-module kakpipe
-eval %sh{ kcr init kakoune }
-eval %sh{ kks init }
+# eval %sh{ kcr init kakoune }
+# eval %sh{ kks init }
 
 set-option global grepcmd "ag --column"
-# set global tree_cmd 'kak-tree -c ~/.config/kak/kak-tree.toml'
-set-option global tree_cmd '/home/jujo/kak-tree/target/release/kak-tree -c /home/jujo/.config/kak/kak-tree.toml '
 
 # TAG:INTERFACE
 define-command -override remove-scratch-message -docstring 'remove scratch message' %{
@@ -57,6 +62,7 @@ define-command -override remove-scratch-message -docstring 'remove scratch messa
 
 remove-scratch-message
 set-option global startup_info_version 999999999999999999999999
+
 plug "andreyorst/powerline.kak" defer powerline %{
     set-option global powerline_separator ""
     set-option global powerline_separator_thin ""
@@ -65,7 +71,6 @@ plug "andreyorst/powerline.kak" defer powerline %{
 } config %{
     powerline-start
 }
-
 
 add-highlighter global/ number-lines -relative -hlcursor
 add-highlighter global/ show-matching
@@ -104,21 +109,28 @@ plug "gustavo-hms/luar" %{
     declare-user-mode fuzzy
     # set-option global peneira_files_command "find ."
     set-option global peneira_files_command "rg --files"
-    map global user f ':enter-user-mode fuzzy<ret>' -docstring "fuzzy"
-    map global fuzzy f ':peneira-files<ret>'        -docstring "files"
-    map global fuzzy l ':peneira-lines<ret>'        -docstring "lines"
+    map global user f ': enter-user-mode fuzzy<ret>' -docstring "fuzzy"
+    map global fuzzy f ' :peneira-files<ret>'        -docstring "files"
+    map global fuzzy l ': peneira-lines<ret>'        -docstring "lines"
+    map global fuzzy s ': peneira-symbols<ret>'      -docstring "symbols"
 
     define-command peneira-buffers %{
       peneira 'buffers: ' %{ printf '%s\n' $kak_quoted_buflist } %{
         buffer %arg{1}
       }
     }
-    map global fuzzy b ':peneira-buffers<ret>'   -docstring "buffers"
+    map global fuzzy b ': peneira-buffers<ret>'   -docstring "buffers"
+
+    # define-command peneira-tags %{
+    #   peneira 'tags: ' %{ printf "%s\n" $kak_opt_comment_line}
+    # }
+
+    # map global fuzzy t ': peneira-tags<ret>' -docstring "tags"
   }
 
-  plug "raiguard/harpoon.kak" %{
-    harpoon-add-bindings
-  }
+  # plug "raiguard/harpoon.kak" %{
+  #   harpoon-add-bindings
+  # }
 }
 
 plug "occivink/kakoune-snippets" config %{
@@ -154,14 +166,14 @@ enable-auto-pairs
 #require-module auto-pairs
 #auto-pairs-enable
 
-plug "andreyourst/plug.kak" noload
+# plug "andreyourst/plug.kak" noload
 plug 'h-youhei/kakoune-surround'
 # plug 'Delapouite/kakoune-registers'
 # plug 'Delapouite/kakoune-palette'
-plug "Delapouite/kakoune-buffers" %{
-  map global user b ': enter-user-mode -lock buffers<ret>' -docstring 'buffers (lock)…'
-}
 
+# plug "Delapouite/kakoune-buffers" %{
+#   map global user b ': enter-user-mode -lock buffers<ret>' -docstring 'buffers (lock)…'
+# }
 
 # TAG:HOOKS
 hook global WinCreate    .* 'git show-diff'
@@ -194,6 +206,27 @@ hook global WinSetOption filetype=(fennel) %{
   hook window InsertChar \] -always %{
     # execute-keys '<esc>i'
   }
+  # waiting for them to merge the accumulate keyword
+  evaluate-commands %sh{
+      # Grammar
+      keywords="require-macros eval-compiler doc lua hashfn macro macros import-macros pick-args pick-values macroexpand macrodebug
+                do values if when each for fn lambda λ partial while set global var local let tset set-forcibly! doto match or and
+                not not= collect icollect accumulate rshift lshift bor band bnot bxor with-open"
+      re_keywords='\\$ \\$1 \\$2 \\$3 \\$4 \\$5 \\$6 \\$7 \\$8 \\$9 \\$\\.\\.\\.'
+      builtins="_G _VERSION arg assert bit32 collectgarbage coroutine debug
+                dofile error getfenv getmetatable io ipairs length load
+                loadfile loadstring math next os package pairs pcall
+                print rawequal rawget rawlen rawset require select setfenv
+                setmetatable string table tonumber tostring type unpack xpcall"
+      join() { sep=$2; eval set -- $1; IFS="$sep"; echo "$*"; }
+  # Add the language's grammar to the static completion list
+      printf %s\\n "declare-option str-list fennel_static_words $(join "${keywords} ${builtins} false nil true" ' ')"
+      # Highlight keywords
+      printf %s "
+          add-highlighter shared/fennel/code/keywords regex \b($(join "${keywords} ${re_keywords}" '|'))\b 0:keyword
+          add-highlighter shared/fennel/code/builtins regex \b($(join "${builtins}" '|'))\b 0:builtin
+      "
+  }
 }
 
 eval %sh{kak-lsp --kakoune -s $kak_session}  # Not needed if you load it with plug.kak.
@@ -206,12 +239,71 @@ hook global WinSetOption filetype=(ruby|racket|rust|scheme|python|lisp|javascrip
   map global user h ":lsp-hover<ret>"
 }
 
-
 # TAG:COMMANDS
+
+define-command save-selection-to %{
+  info -style modal "Venomify your feet!"
+  on-key %{
+    info -style modal
+    exec %sh{printf "\"$kak_key""Z\n"}
+  }
+}
+
+define-command restore-selection-from %{
+  info -style modal %sh{
+    printf "Pick your poison:\n"
+    [ ! -z "$kak_reg_a" ] && printf "a :: %s\n" "$kak_reg_a"
+    [ ! -z "$kak_reg_b" ] && printf "b :: %s\n" "$kak_reg_b"
+    [ ! -z "$kak_reg_c" ] && printf "c :: %s\n" "$kak_reg_c"
+    [ ! -z "$kak_reg_d" ] && printf "d :: %s\n" "$kak_reg_d"
+    [ ! -z "$kak_reg_e" ] && printf "e :: %s\n" "$kak_reg_e"
+    [ ! -z "$kak_reg_f" ] && printf "f :: %s\n" "$kak_reg_f"
+    [ ! -z "$kak_reg_g" ] && printf "g :: %s\n" "$kak_reg_g"
+    [ ! -z "$kak_reg_h" ] && printf "h :: %s\n" "$kak_reg_h"
+    [ ! -z "$kak_reg_i" ] && printf "i :: %s\n" "$kak_reg_i"
+    [ ! -z "$kak_reg_j" ] && printf "j :: %s\n" "$kak_reg_j"
+    [ ! -z "$kak_reg_k" ] && printf "k :: %s\n" "$kak_reg_k"
+    [ ! -z "$kak_reg_l" ] && printf "l :: %s\n" "$kak_reg_l"
+    [ ! -z "$kak_reg_m" ] && printf "m :: %s\n" "$kak_reg_m"
+    [ ! -z "$kak_reg_n" ] && printf "n :: %s\n" "$kak_reg_n"
+    [ ! -z "$kak_reg_o" ] && printf "o :: %s\n" "$kak_reg_o"
+    [ ! -z "$kak_reg_p" ] && printf "p :: %s\n" "$kak_reg_p"
+    [ ! -z "$kak_reg_q" ] && printf "q :: %s\n" "$kak_reg_q"
+    [ ! -z "$kak_reg_r" ] && printf "r :: %s\n" "$kak_reg_r"
+    [ ! -z "$kak_reg_s" ] && printf "s :: %s\n" "$kak_reg_s"
+    [ ! -z "$kak_reg_t" ] && printf "t :: %s\n" "$kak_reg_t"
+    [ ! -z "$kak_reg_u" ] && printf "u :: %s\n" "$kak_reg_u"
+    [ ! -z "$kak_reg_v" ] && printf "v :: %s\n" "$kak_reg_v"
+    [ ! -z "$kak_reg_w" ] && printf "w :: %s\n" "$kak_reg_w"
+    [ ! -z "$kak_reg_x" ] && printf "x :: %s\n" "$kak_reg_x"
+    [ ! -z "$kak_reg_y" ] && printf "y :: %s\n" "$kak_reg_y"
+    [ ! -z "$kak_reg_z" ] && printf "z :: %s\n" "$kak_reg_z"
+  }
+  on-key %{
+    info -style modal
+    exec %sh{
+     [ ! -z "$kak_key" ] && printf "\"$kak_key""z\n"
+    }
+  }
+}
+
 define-command kakpipe-toolsclient %{
   prompt -shell-completion ':: ' %{
     eval -try-client tools %{kakpipe -S -w -- sh -c %val{text}}
   }
+}
+
+define-command kp -params 2 %{
+  eval -try-client tools %{
+    kakpipe -S -N %arg{1} -w -- sh -c "%arg{2}"
+  }
+}
+
+define-command bg -params .. %{
+  nop %sh{ {
+    $@ & echo $!
+    echo "eval -client '$kak_client' 'spawned $!'" | kak -p ${kak_session}
+  } > /dev/null 2>&1 < /dev/null & }
 }
 
 define-command next-tag %{
@@ -241,6 +333,12 @@ define-command meth %{
   }
 }
 
+define-command gotofileB %{
+  edit %sh{
+    dirname "$kak_bufname" | xargs printf "%s/$kak_selection\n"
+  }
+}
+ 
 define-command pure %{
   nop %sh{ {
     pgrep ran.sh | xargs kill -9
@@ -308,7 +406,8 @@ bgru-p"
 
 define-command supin %{
   peneira ":|=|: " %{
-printf "tagss
+printf "wikim
+tagss
 meth
 dicto"
   } %{
@@ -353,8 +452,7 @@ map global normal <c-y> '<a-|>xclip -i -selection clipboard<ret>'
 map global user p '\i'                                   -docstring 'no hookies'
 map global user w ':  w<ret>'                              -docstring "save"
 map global user e ': execute-keys %{<esc>: synonyms-set-thesaurus th_en_US_v2<ret><esc>: synonyms-replace-selection<ret>}'    -docstring "synonyms"
-map global user E '  !explorer.exe . <ret>'                -docstring "explorer"
-map global user k ':  edit-kakrc<ret>'                     -docstring "kakrc"
+map global user k ':  edit ~/.config/kak/kakrc<ret>'                     -docstring "kakrc"
 map global user ! ':  edit ~/.config/kak-lsp/kak-lsp.toml<ret>' -docstring "Edit lsp config"
 map global normal <c-k> ': kakpipe-toolsclient<ret>'    -docstring "kakpipe shorthand"
 map global user K ':  source "%val{config}/kakrc"<ret>'    -docstring "re-source"
@@ -365,8 +463,7 @@ map global user C ':  comment-block<ret>'                  -docstring "comment"
 map global user F ':  format<ret>'                         -docstring "format"
 # map global normal <c-t> '<c-s>%s\h+$<ret>d<space><c-o><c-o>'
 map global normal <c-x> 's^<ret>s\s<ret>wbdi<backspace><ret><esc><space>' -docstring "naive format"
-map global normal ^ '<a-`>'
-map global user <a-Q> ':q!<ret>'                        -docstring "bye bye"
+# map global normal ^ '<a-`>'
 map global user x ':  restclient-execute<ret>'            -docstring "execute rest client"
 declare-user-mode surround
 map global user s     ':  enter-user-mode surround<ret>'       -docstring 'surround mode'
@@ -389,15 +486,22 @@ map global normal <a-A> ':prev-tag<ret>' -docstring "prev Tag"
 map global user T ':add-tag<ret>' -docstring "Add tag"
 map global normal <F1> '<c-o>' -docstring 'prev jump'
 map global normal <F2> '<tab>' -docstring 'next jump'
-map global insert <a-1> 'λ'
-map global insert <a-2> 'ñ'
+# map global insert <a-1> 'λ'
+# map global insert <a-2> 'ñ'
 map global normal <a-3> ':kaktree-toggle<ret>'
-map global user Q ':query-cheat-sheet<ret>' -docstring 'query cheat sheet'
+# map global user Q ':query-cheat-sheet<ret>' -docstring 'query cheat sheet'
 map global user q ':query-howdoi<ret>' -docstring 'query howdoi'
-map global goto L l
-map global goto H h
-map global goto J j
-map global goto K k
+# map global goto L l
+# map global goto H h
+# map global goto J j
+# map global goto K k
 map global user l ': supah-commands<ret>' -docstring "SUPA OUT"
 map global user <semicolon> ': supin<ret>' -docstring "SUPA IN"
 map global user r ': runasync '  -docstring "Run async"
+# this shit wont work lmao
+map global goto m ': gotofileB<ret>'       -docstring "go to file creating it"
+map global user m ': make<ret>'            -docstring 'run phony make'
+map global user M ': make '                -docstring 'prompt for make'
+map global user a ': %val{selection}<c-a>' -docstring 'do to selection'
+map global user Z ' :save-selection-to<ret>'
+map global user z ' :restore-selection-from<ret>'
